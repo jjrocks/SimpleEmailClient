@@ -45,7 +45,6 @@ public class EmailClient
 		try {
 			outToServer.writeBytes("HELO " + hostname);
 			System.out.println(inFromServer.readLine());
-			outToServer.writeBytes("HELO " + hostname);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
