@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Iterator;
+import java.util.stream.Stream;
 
 
 public class EmailClient 
@@ -27,19 +29,12 @@ public class EmailClient
 	{
 		System.out.print("Please input server name: ");
 		BufferedReader inFromUser = new BufferedReader(new InputStreamReader(is));
-		String userInput = "";
-		
-		try {
-			userInput = inFromUser.readLine();
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.out.println("Yo, you somehow messed it up");
-			return;
-		}
+		String userInput = getUserInput(is);
 		
 		hostname = userInput;
 		try {
 			connectToServer(userInput);
+			startEmailHandshake();
 		} catch (IOException e) {
 			System.out.println("Incorrect host! Exiting!!!");
 			e.printStackTrace();
@@ -49,7 +44,72 @@ public class EmailClient
 	
 	public void startEmailHandshake()
 	{
+		try {
+			outToServer.writeBytes("HELO " + hostname);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void interactionSeries(InputStream is)
+	{
+		String from = "";
+		System.out.print("Who do you want to send it as: ");
+		from = getUserInput(is);
+		sendToServer("MAIL FROM: <" + from + ">");
+		System.out.print("Which people do you want to send it to (seperate by commas): ");
+		String[] toArray = getUserInput(is).split(",");
+		sendToServer("RCPT TO: <" + toArray[0] + ">");
+		sendToServer("DATA");
+		System.out.print("What message do you want to send to people: ");
 		
+		String data = getUserInput(is);
+		sendToServer(data);
+		sendToServer(".");
+		sendToServer("QUIT");
+	}
+	
+	public String getUserInput(InputStream is)
+	{
+		BufferedReader inFromUser = new BufferedReader(new InputStreamReader(is));
+		String userInput = "";
+		
+		try {
+			userInput = inFromUser.readLine();
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.out.println("Yo, you somehow messed it up");
+			return "";
+		}
+		return userInput;
+	}
+	
+	public String sendToServer(String outMessage)
+	{
+		StringBuilder sb = new StringBuilder();
+		try {
+			outToServer.writeBytes(outMessage);
+			
+			Stream<String> lines = inFromServer.lines();
+			for(Iterator<String> iterator = lines.iterator(); iterator.hasNext() ;)
+			{
+				String line = iterator.next();
+				sb.append(line);
+				System.out.println(line);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return sb.toString();
+	}
+	
+	public static void main(String[] args)
+	{
+		EmailClient client = new EmailClient();
+		client.startEmailServerName(System.in);
 	}
 	
 }
