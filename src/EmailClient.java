@@ -33,6 +33,7 @@ public class EmailClient
 		try {
 			connectToServer(userInput);
 			startEmailHandshake();
+			interactionSeries(is);
 		} catch (IOException e) {
 			System.out.println("Incorrect host! Exiting!!!");
 			e.printStackTrace();
