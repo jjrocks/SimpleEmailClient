@@ -90,8 +90,6 @@ public class EmailClient
 		StringBuilder sb = new StringBuilder();
 		try {
 			outToServer.writeBytes(outMessage);
-			
-			Stream<String> lines = inFromServer.lines();
 			String line;
 			while((line = inFromServer.readLine()) != null)
 			{
