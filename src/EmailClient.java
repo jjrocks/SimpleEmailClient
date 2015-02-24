@@ -92,9 +92,9 @@ public class EmailClient
 			outToServer.writeBytes(outMessage);
 			
 			Stream<String> lines = inFromServer.lines();
-			for(Iterator<String> iterator = lines.iterator(); iterator.hasNext() ;)
+			String line;
+			while((line = inFromServer.readLine()) != null)
 			{
-				String line = iterator.next();
 				sb.append(line);
 				System.out.println(line);
 			}
