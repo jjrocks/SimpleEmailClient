@@ -26,7 +26,6 @@ public class EmailClient
 	public void startEmailServerName(InputStream is)
 	{
 		System.out.print("Please input server name: ");
-		BufferedReader inFromUser = new BufferedReader(new InputStreamReader(is));
 		String userInput = getUserInput(is);
 		
 		hostname = userInput;
@@ -44,6 +43,8 @@ public class EmailClient
 	public void startEmailHandshake()
 	{
 		try {
+			outToServer.writeBytes("HELO " + hostname);
+			System.out.println(inFromServer.readLine());
 			outToServer.writeBytes("HELO " + hostname);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
