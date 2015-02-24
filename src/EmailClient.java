@@ -6,8 +6,6 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Iterator;
-import java.util.stream.Stream;
-
 
 public class EmailClient 
 {
