@@ -21,6 +21,7 @@ public class EmailClient
 		clientSocket = new Socket(hostname, PORT_NAME);
 		outToServer = new DataOutputStream(clientSocket.getOutputStream());
 		inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+		System.out.println(inFromServer.readLine());
 	}
 	
 	public void startEmailServerName(InputStream is)
@@ -43,7 +44,7 @@ public class EmailClient
 	public void startEmailHandshake()
 	{
 		try {
-			outToServer.writeBytes("HELO " + hostname);
+			outToServer.writeBytes("HELO cs.lafayette.edu" + " \r\n");
 			System.out.println(inFromServer.readLine());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -56,17 +57,17 @@ public class EmailClient
 		String from = "";
 		System.out.print("Who do you want to send it as: ");
 		from = getUserInput(is);
-		sendToServer("MAIL FROM: <" + from + ">");
+		sendToServer("MAIL FROM: <" + from + ">\r\n");
 		System.out.print("Which people do you want to send it to (seperate by commas): ");
 		String[] toArray = getUserInput(is).split(",");
-		sendToServer("RCPT TO: <" + toArray[0] + ">");
-		sendToServer("DATA");
+		sendToServer("RCPT TO: <" + toArray[0] + "> \r\n");
+		sendToServer("DATA \r\n");
 		System.out.print("What message do you want to send to people: ");
 		
 		String data = getUserInput(is);
-		sendToServer(data);
-		sendToServer(".");
-		sendToServer("QUIT");
+		sendToServer(data + "\r\n.\r\n");
+		//sendToServer("\r\n.\r\n");
+		sendToServer("QUIT\r\n");
 	}
 	
 	public String getUserInput(InputStream is)
@@ -87,14 +88,15 @@ public class EmailClient
 	public String sendToServer(String outMessage)
 	{
 		StringBuilder sb = new StringBuilder();
+		System.out.println(outMessage);
 		try {
 			outToServer.writeBytes(outMessage);
-			String line;
-			while((line = inFromServer.readLine()) != null)
-			{
+			String line = inFromServer.readLine();
+			//while((line = inFromServer.readLine()) != null)
+			//{
 				sb.append(line);
 				System.out.println(line);
-			}
+				//}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
