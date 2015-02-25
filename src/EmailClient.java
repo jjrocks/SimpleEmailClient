@@ -32,8 +32,15 @@ public class EmailClient
 		hostname = userInput;
 		try {
 			connectToServer(userInput);
-			startEmailHandshake();
-			interactionSeries(is);
+			if (startEmailHandshake())
+			{
+				interactionSeries(is);
+			}
+			else
+			{
+				System.out.println("Incorrect host. Exiting");
+				return;
+			}
 		} catch (IOException e) {
 			System.out.println("Incorrect host! Exiting!!!");
 			e.printStackTrace();
@@ -41,14 +48,17 @@ public class EmailClient
 		}
 	}
 	
-	public void startEmailHandshake()
+	/**
+	 * The email handshake. 	
+	 */
+	public boolean startEmailHandshake()
 	{
 		try {
 			outToServer.writeBytes("HELO cs.lafayette.edu" + " \r\n");
-			System.out.println(inFromServer.readLine());
+			return checkStatus(inFromServer.readLine());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return false;
 		}
 	}
 	
@@ -57,17 +67,34 @@ public class EmailClient
 		String from = "";
 		System.out.print("Who do you want to send it as: ");
 		from = getUserInput(is);
-		sendToServer("MAIL FROM: <" + from + ">\r\n");
+		if(!checkStatus(sendToServer("MAIL FROM: <" + from + ">\r\n")))
+		{
+			System.out.println("Failed!");
+			return;
+		}
 		System.out.print("Which people do you want to send it to (seperate by commas): ");
 		String[] toArray = getUserInput(is).split(",");
-		sendToServer("RCPT TO: <" + toArray[0] + "> \r\n");
+		for(String person : toArray)
+		{
+			sendToServer("RCPT TO: <" + person + "> \r\n");
+		}
 		sendToServer("DATA \r\n");
 		System.out.print("What message do you want to send to people: ");
 		
 		String data = getUserInput(is);
-		sendToServer(data + "\r\n.\r\n");
+		if(!checkStatus(sendToServer(data + "\r\n.\r\n")))
+		{
+			System.out.println("Didn't send properly! Sorry!");
+			return;
+		}
 		//sendToServer("\r\n.\r\n");
 		sendToServer("QUIT\r\n");
+	}
+	
+	public boolean checkStatus(String line)
+	{
+		return line.contains("220") || line.contains("250") || 
+				line.contains("354") || line.contains("221");
 	}
 	
 	public String getUserInput(InputStream is)
@@ -92,11 +119,7 @@ public class EmailClient
 		try {
 			outToServer.writeBytes(outMessage);
 			String line = inFromServer.readLine();
-			//while((line = inFromServer.readLine()) != null)
-			//{
-				sb.append(line);
-				System.out.println(line);
-				//}
+			sb.append(line);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
