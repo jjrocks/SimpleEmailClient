@@ -89,6 +89,7 @@ public class EmailClient
 		}
 		//sendToServer("\r\n.\r\n");
 		sendToServer("QUIT\r\n");
+		System.out.println("Yay it worked!");
 	}
 	
 	public boolean checkStatus(String line)
@@ -115,7 +116,6 @@ public class EmailClient
 	public String sendToServer(String outMessage)
 	{
 		StringBuilder sb = new StringBuilder();
-		System.out.println(outMessage);
 		try {
 			outToServer.writeBytes(outMessage);
 			String line = inFromServer.readLine();
